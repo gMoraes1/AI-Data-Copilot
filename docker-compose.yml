@@ -1,0 +1,68 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: copilot
+      POSTGRES_PASSWORD: copilot
+      POSTGRES_DB: copilot
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U copilot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      # Usa a rede do host durante o build (RUN pip install...).
+      # Necessário neste ambiente: a rede bridge do Docker não tem saída p/ DNS.
+      network: host
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql+psycopg2://copilot:copilot@db:5432/copilot
+      # Papel somente-leitura (criado no bootstrap) usado para executar o SQL do LLM.
+      DATABASE_READONLY_URL: postgresql+psycopg2://copilot_ro:copilot_ro@db:5432/copilot
+      # Por padrão usa o Ollama NATIVO do host (host.docker.internal -> host-gateway).
+      # Vantagem: já tem os modelos baixados e tem internet para baixar novos.
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      LLM_MODEL: ${LLM_MODEL:-llama3}
+      # Tempo máximo de espera pelo Ollama (CPU lenta precisa de mais).
+      LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-300}
+      CORS_ORIGINS: '["http://localhost:8080"]'
+    extra_hosts:
+      # Permite o container alcançar serviços que rodam no host (ex: Ollama nativo).
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      network: host  # mesmo motivo do backend (npm install precisa de rede).
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+  # Container de Ollama OPCIONAL — só para quem NÃO tem Ollama nativo no host.
+  # Ative com: docker compose --profile ollama-container up
+  # (e ajuste OLLAMA_BASE_URL=http://ollama:11434)
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["ollama-container"]
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama
+
+volumes:
+  pgdata:
+  ollama:

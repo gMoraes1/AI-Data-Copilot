@@ -1,0 +1,49 @@
+[tool.poetry]
+name = "corporate-ai-copilot"
+version = "0.1.0"
+description = "Plataforma que traduz linguagem natural em SQL seguro e responde perguntas sobre dados corporativos."
+authors = ["Gustavo <claude.ai@tooq.com.br>"]
+readme = "README.md"
+packages = [{ include = "app" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.6"
+uvicorn = { extras = ["standard"], version = "^0.34.0" }
+sqlalchemy = "^2.0.36"
+psycopg2-binary = "^2.9.10"
+pydantic = "^2.10.4"
+pydantic-settings = "^2.7.1"
+httpx = "^0.28.1"
+alembic = "^1.14.0"
+python-json-logger = "^3.2.1"
+prometheus-fastapi-instrumentator = "^7.0.0"
+pyjwt = "^2.10.1"
+bcrypt = "^4.2.1"
+python-multipart = "^0.0.20"
+email-validator = "^2.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"
+pytest-cov = "^6.0.0"
+ruff = "^0.8.4"
+mypy = "^1.14.0"
+
+[tool.poetry.scripts]
+seed = "app.db.seed:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "C4"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"
