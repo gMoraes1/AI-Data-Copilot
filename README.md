@@ -73,6 +73,14 @@ npm install
 npm run dev                   # http://localhost:5173 (proxy /api -> :8000)
 ```
 
+
+## Fotos
+
+![Inicio](./frontend/src/assets/images/telaLogin.png)
+![Chat](./frontend/src/assets/images/conversa.png)
+
+
+
 ## Roadmap (do desafio)
 
 - [x] Chat com banco de dados + geração/validação de SQL
