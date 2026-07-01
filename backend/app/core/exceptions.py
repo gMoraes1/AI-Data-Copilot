@@ -50,3 +50,17 @@ class EmailAlreadyExistsError(CopilotError):
 
     status_code = 409
     message = "Este e-mail já está cadastrado."
+
+
+class NotFoundError(CopilotError):
+    """Recurso não encontrado (ou fora do escopo do tenant)."""
+
+    status_code = 404
+    message = "Recurso não encontrado."
+
+
+class BadRequestError(CopilotError):
+    """Requisição inválida (entrada malformada ou fora dos limites)."""
+
+    status_code = 400
+    message = "Requisição inválida."

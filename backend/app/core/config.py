@@ -66,6 +66,16 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     llm_timeout_seconds: float = 60.0
 
+    # --- RAG (busca em documentos corporativos) ---
+    # Modelo de embedding do Ollama. Por padrão reusa o mesmo modelo do chat
+    # (llama3), evitando um `ollama pull` extra. Pode apontar para um modelo
+    # dedicado (ex.: nomic-embed-text) via EMBEDDING_MODEL.
+    embedding_model: str = "llama3"
+    rag_chunk_size: int = Field(default=1000, description="Tamanho do chunk (caracteres).")
+    rag_chunk_overlap: int = Field(default=150, description="Sobreposição entre chunks.")
+    rag_top_k: int = Field(default=4, description="Nº de trechos recuperados por pergunta.")
+    rag_max_file_mb: int = Field(default=10, description="Tamanho máximo do upload (MB).")
+
     @property
     def is_production(self) -> bool:
         return self.environment == "production"
